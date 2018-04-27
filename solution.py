@@ -7,9 +7,10 @@ column_units = [cross(rows, c) for c in cols]
 square_units = [cross(rs, cs) for rs in ('ABC','DEF','GHI') for cs in ('123','456','789')]
 unitlist = row_units + column_units + square_units
 
-# TODO: Update the unit list to add the new diagonal units
-unitlist = unitlist
+diagonallist = [['A1', 'B2', 'C3', 'D4', 'E5', 'F6', 'G7', 'H8', 'I9'],['I1','H2','G3','F4','E5','D6','C7','B8','A9']]
 
+# TODO: Update the unit list to add the new diagonal units
+unitlist = unitlist + diagonallist
 
 # Must be called after all units (including diagonals) are added to the unitlist
 units = extract_units(unitlist, boxes)
@@ -49,7 +50,26 @@ def naked_twins(values):
     strategy repeatedly).
     """
     # TODO: Implement this function!
-    pass
+
+    pairlist = []
+
+    for i in '12345678':
+        for j in '23456789':
+            if i < j:
+                pairlist.append(i+j)
+        
+    for unit in unitlist:
+        for digits in pairlist:            
+            dplaces = [box for box in unit if (digits == values[box])]
+            if len(dplaces) == 2:
+                first = dplaces[0]
+                second = dplaces[1]
+                for peer in unit:
+                    if peer != second and peer != first:
+                        for d in digits:
+                            values[peer] = values[peer].replace(d,'')                
+    return values
+    
 
 
 def eliminate(values):
@@ -130,6 +150,8 @@ def reduce_puzzle(values):
         solved_values_before = len([box for box in values.keys() if len(values[box]) == 1])
         # Use the Eliminate Strategy
         values = eliminate(values)
+        # Use the naked_twins Strategy
+        values = naked_twins(values)
         # Use the Only Choice Strategy
         values = only_choice(values)
         # Check how many boxes have a determined value, to compare
